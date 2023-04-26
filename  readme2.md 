@@ -4,31 +4,38 @@ _____________________________________________________________
 
 Step 2: Initialize the replica sets (config servers and shards)
 
-docker compose exec configsvr01 sh -c "mongosh < /scripts/init-configserver.js"
+docker compose exec configsvrF01 sh -c "mongosh < /scripts/init-configserver.js"
 
-docker compose exec shard01-a sh -c "mongosh < /scripts/init-shard01.js"
+docker compose exec shardF01-a sh -c "mongosh < /scripts/init-shard01.js"
 
-docker compose exec shard02-a sh -c "mongosh < /scripts/init-shard02.js"
-docker compose exec shard03-a sh -c "mongosh < /scripts/init-shard03.js"
+docker compose exec shardF02-a sh -c "mongosh < /scripts/init-shard02.js"
+docker compose exec shardF03-a sh -c "mongosh < /scripts/init-shard03.js"
 
 _____________________________________________________________
 
 //Step 3: Initializing the router 
-docker compose exec router01 sh -c "mongosh < /scripts/init-router.js"
+docker compose exec routerF01 sh -c "mongosh < /scripts/init-router.js"
 
 _____________________________________________________________
 
 Step 4: Enable sharding and setup sharding-key
 
-docker compose exec router01 mongosh --port 27017
+docker compose exec routerF01 mongosh --port 27017
 
 // Enable sharding for database `MyDatabase`
 sh.enableSharding("MyDatabase")
 
 // Setup shardingKey for collection `MyCollection`**
 db.adminCommand( { shardCollection: "MyDatabase.MyCollection", key: { oemNumber: "hashed", zipCode: 1, supplierId: 1 } } )
-______________________________________________________
 
+db.adminCommand( { shardCollection: "test.users2", key: { userName: "hashed",_id:1 } } )
+________________________________________________________________________________________
 
-docker-compose exec router01 mongosh --port 27017
+docker compose exec routerF01 mongosh --port 27017
 sh.status()
+
+db.settings.updateOne(
+   { _id: "chunksize" },
+   { $set: { _id: "chunksize", value: 1} },
+   { upsert: true }
+)
