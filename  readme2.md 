@@ -39,3 +39,8 @@ db.settings.updateOne(
    { $set: { _id: "chunksize", value: 1} },
    { upsert: true }
 )
+
+
+
+docker compose exec routerF01 mongosh --port 27017
+db.adminCommand( { shardCollection: "test.users2", key: { userName: "hashed",_id:1 } } )
